@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cafe Scarlet Gallery</title>
+
+  <!-- フォント読み込み -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Noto Sans JP', sans-serif;
+      background: #F6EED0;
+      color: #623B00;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .hero {
+      position: relative;
+      height: 60vh;
+      min-height: 300px;
+      background-size: cover;
+      background-position: center;
+      transition: background-image 1s ease-in-out;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .hero-text {
+      position: absolute;
+      bottom: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #F6EED0;
+      font-size: 2.8rem;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      z-index: 1;
+    }
+
+    header {
+      text-align: center;
+      padding: 1rem 0;
+      background: none;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #623B00;
+    }
+
+    #filterButtons {
+      text-align: center;
+      margin: 1.5rem auto;
+    }
+
+    #filterButtons button {
+      margin: 6px;
+      padding: 10px 18px;
+      background: transparent;
+      border: 2px solid #477424;
+      color: #477424;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all .3s;
+    }
+
+    #filterButtons button.active,
+    #filterButtons button:hover {
+      background: #477424;
+      color: #F6EED0;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: auto;
+      padding: 2rem;
+    }
+
+    .gallery-item {
+      background: #CFBB9F;
+      border: 2px solid #BA9153;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s;
+    }
+
+    .gallery-item:hover {
+      transform: translateY(-4px);
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .product-info {
+      padding: 1rem;
+    }
+
+    .product-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin: 0.5rem 0;
+    }
+
+    .product-price {
+      font-size: 1rem;
+      color: #925900;
+    }
+
+    .btn-add-cart {
+      margin-top: 10px;
+      background: #477424;
+      color: #F6EED0;
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-add-cart:hover {
+      background: #A6AD23;
+    }
+
+    .modal, #cartModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: #F6EED0;
+      color: #623B00;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      font-size: 1.8rem;
+      background: none;
+      border: none;
+      color: #925900;
+      cursor: pointer;
+    }
+
+    .modal-image {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .modal-description {
+      margin: 0.5rem 0;
+      color: #477424;
+    }
+
+    .modal-price {
+      font-weight: bold;
+      color: #925900;
+    }
+
+    .modal-add-cart-btn {
+      background: #925900;
+      color: #F6EED0;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 8px;
+      margin-top: 1rem;
+      width: 100%;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .modal-add-cart-btn:hover {
+      background: #9A7719;
+    }
+
+    #cartToggleBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #477424;
+      color: #fff;
+      border: none;
+      padding: 0.8rem 1.4rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
+      z-index: 999;
+    }
+
+    .dark-mode {
+      background: #623B00;
+      color: #F6EED0;
+    }
+
+    .dark-mode .hero::after {
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .dark-mode .gallery-item {
+      background: #925900;
+      border-color: #A6AD23;
+    }
+
+    .dark-mode .modal-content {
+      background: #925900;
+      color: #F6EED0;
+    }
+
+    .dark-mode .modal-add-cart-btn {
+      background: #A6AD23;
+      color: #623B00;
+    }
+
+    .dark-mode #cartToggleBtn {
+      background: #A6AD23;
+      color: #623B00;
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="hero-text">Cafe Scarlet</div>
+  </section>
+
+  <header>
+    <h1>Our Coffee Selection</h1>
+  </header>
+
+  <div id="filterButtons">
+    <button data-filter="all" class="active">All</button>
+    <button data-filter="blend">Blend</button>
+    <button data-filter="espresso">Espresso</button>
+    <button data-filter="seasonal">Seasonal</button>
+    <button data-filter="ice">Ice</button>
+  </div>
+
+  <main class="gallery" id="gallery"></main>
+
+  <!-- モーダル -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <img id="modal-img" class="modal-image" src="" alt="">
+      <h2 id="modal-title" class="modal-title"></h2>
+      <p id="modal-description" class="modal-description"></p>
+      <p id="modal-price" class="modal-price"></p>
+      <button class="modal-add-cart-btn" onclick="addToCart()">Add to Cart</button>
+    </div>
+  </div>
+
+  <!-- カート -->
+  <div class="modal" id="cartModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeCart()">×</button>
+      <h2>Cart</h2>
+      <ul id="cartList"></ul>
+      <p id="cartTotal"></p>
+      <button class="modal-add-cart-btn" onclick="purchase()">Purchase</button>
+    </div>
+  </div>
+
+  <button id="cartToggleBtn" onclick="toggleCart()">🛒 Cart</button>
+
+  <!-- ダークモード切替ボタン -->
+  <button onclick="document.body.classList.toggle('dark-mode')" style="position:fixed;bottom:90px;right:20px;background:#925900;color:#F6EED0;border:none;padding:10px;border-radius:50%;font-size:1.2rem;z-index:1000;">🌓</button>
+
+  <script>
+    const products = [
+      { id: 1, src: "images/cs001.png", title: "Blended Coffee", description: "Fragrant cafe blends", price: 900, category: "blend" },
+      { id: 2, src: "images/cs002.png", title: "Espresso", description: "Intense espresso", price: 850, category: "espresso" },
+      { id: 3, src: "images/cs003.png", title: "Seasonal Latte", description: "Limited edition", price: 950, category: "seasonal" },
+      { id: 4, src: "images/cs004.png", title: "Iced Coffee", description: "Cold and refreshing", price: 800, category: "ice" },
+      { id: 5, src: "images/cs005.png", title: "Iced Mocha", description: "Chocolate-style", price: 1000, category: "ice" },
+    ];
+
+    let currentIndex = 0;
+    let cart = [];
+
+    const gallery = document.getElementById("gallery");
+    const cartList = document.getElementById("cartList");
+
+    function renderGallery(filter = "all") {
+      gallery.innerHTML = "";
+      const list = filter === "all" ? products : products.filter(p => p.category === filter);
+      list.forEach((p, i) => {
+        const item = document.createElement("div");
+        item.className = "gallery-item";
+        item.innerHTML = `
+          <img src="${p.src}" alt="${p.title}">
+          <div class="product-info">
+            <h3 class="product-title">${p.title}</h3>
+            <p class="product-price">¥${p.price}</p>
+            <button class="btn-add-cart" onclick="openModal(${i})">Details</button>
+          </div>`;
+        gallery.appendChild(item);
+      });
+    }
+
+    function openModal(index) {
+      currentIndex = index;
+      const p = products[index];
+      document.getElementById("modal-img").src = p.src;
+      document.getElementById("modal-title").textContent = p.title;
+      document.getElementById("modal-description").textContent = p.description;
+      document.getElementById("modal-price").textContent = `¥${p.price}`;
+      document.getElementById("modal").style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("modal").style.display = "none";
+    }
+
+    function addToCart() {
+      const p = products[currentIndex];
+      const found = cart.find(item => item.id === p.id);
+      if (found) found.qty++;
+      else cart.push({ ...p, qty: 1 });
+      closeModal();
+      alert(`${p.title} をカートに追加しました。`);
+    }
+
+    function toggleCart() {
+      const cm = document.getElementById("cartModal");
+      cm.style.display = cm.style.display === "flex" ? "none" : "flex";
+      renderCart();
+    }
+
+    function closeCart() {
+      document.getElementById("cartModal").style.display = "none";
+    }
+
+    function renderCart() {
+      cartList.innerHTML = "";
+      let total = 0;
+      cart.forEach(item => {
+        total += item.price * item.qty;
+        const li = document.createElement("li");
+        li.textContent = `${item.title} × ${item.qty} - ¥${item.price * item.qty}`;
+        cartList.appendChild(li);
+      });
+      document.getElementById("cartTotal").textContent = `Total: ¥${total}`;
+    }
+
+    function purchase() {
+      if (cart.length === 0) return;
+      alert("Thank you for your purchase!");
+      cart = [];
+      closeCart();
+    }
+
+    // フィルター機能
+    document.querySelectorAll("#filterButtons button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#filterButtons button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderGallery(btn.dataset.filter);
+      });
+    });
+
+    // 自動スライド
+    const heroImages = ["images/cs001.png", "images/cs002.png", "images/cs003.png", "images/cs004.png"];
+    const hero = document.querySelector(".hero");
+    let heroIndex = 0;
+    setInterval(() => {
+      heroIndex = (heroIndex + 1) % heroImages.length;
+      hero.style.backgroundImage = `url(${heroImages[heroIndex]})`;
+    }, 5000);
+
+    hero.style.backgroundImage = `url(${heroImages[0]})`;
+    renderGallery();
+  </script>
+</body>
+</html>
